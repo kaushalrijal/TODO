@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { z } from "zod";
 import { Button } from "../ui/button";
 import { Pencil2Icon } from "@radix-ui/react-icons";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -11,92 +13,160 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "../ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 const priorities: { [key: number]: string } = {
   1: "Low",
   2: "Medium",
   3: "Normal",
   4: "High",
-  5: "Very High"
-}
+  5: "Very High",
+};
+
+const formSchema = z.object({
+  title: z
+    .string()
+    .min(3, { message: "Title must be at least 3 characters" })
+    .max(50),
+  priority: z
+    .number({
+      required_error: "Priority is required",
+      invalid_type_error: "Priority must be a number",
+    })
+    .gte(1)
+    .lte(5)
+    .int(),
+  description: z.string().max(100),
+});
 
 const CreateButton = () => {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(1);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      priority: 1,
+      description: "",
+    },
+  });
 
   return (
-    <form>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button size="icon" className="fixed bottom-4 right-4">
-            <Pencil2Icon className="h-4 w-4" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Create Task</DialogTitle>
-            <DialogDescription>Create a new task.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
-                Title
-              </Label>
-              <Input id="title" placeholder="Title" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="priority" className="text-right">
-                Priority
-              </Label>
-              <Input
-                id="priority"
-                placeholder="Title"
-                type="range"
-                min={1}
-                max={5}
-                className="col-span-3"
-                onChange={(event)=>{setValue(event.target.value)}}
-              />
-              <p className="text-sm text-muted-foreground col-span-4 text-right">
-                {priorities[value]} priority
-              </p>
-            </div>
-
-            <div className="grid grid-cols-4 items-top gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Textarea
-                placeholder="Description of the task."
-                className="col-span-3"
-                id="description"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Create</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </form>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="icon" className="fixed bottom-4 right-4">
+          <Pencil2Icon className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Create Task</DialogTitle>
+          <DialogDescription>Create a new task.</DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Title" {...field} required />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Priority</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="range"
+                      max={5}
+                      min={1}
+                      {...field}
+                      onChange={(event) => {
+                        const newValue = parseInt(event.target.value);
+                        setValue(newValue);
+                        if (field.onChange) {
+                          field.onChange(newValue);
+                        }
+                      }}
+                      required
+                    />
+                  </FormControl>
+                  <FormDescription className="text-sm text-muted-foreground text-right">
+                    {priorities[value]} priority
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Description of the task."
+                      {...field}
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="mt-4">
+              <DialogClose asChild>
+                <Button type="submit">Create</Button>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-const SubmitAction = async (e) => {
-  e.preventDefault();
-  const data = await fetch("http://localhost:5000/test", {
+const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  const { title, priority, description } = values;
+  const data = await fetch("http://localhost:5000/create", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      bhaisiko: "tauko",
+      title,
+      priority,
+      description,
     }),
   });
 
-  const result = await data.json();
-  console.log(result);
+  try {
+    const result = await data.json();
+    console.log(result);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export default CreateButton;
