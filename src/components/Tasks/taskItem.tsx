@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { Badge } from "../ui/badge";
+import { EditButton } from "./editButton";
+import Loading from "./loading";
+
 
 type PriorityType = "outline" | "secondary" | "default" | "destructive";
+
+interface Task {
+  _id: string;
+  title: string;
+  priority: number;
+  description: string;
+  isComplete: boolean;
+  __v: number;
+  onDelete: (id: string) => void;
+}
 
 interface Priority {
   type: PriorityType;
@@ -19,7 +32,7 @@ const priorities: Record<number, Priority> = {
   2: {
     type: "secondary",
     value: "Medium",
-  }, 
+  },
   3: {
     type: "default",
     value: "Normal",
@@ -47,6 +60,8 @@ const TaskItem = (props: {
 }) => {
   const { title, description, priority, isComplete, _id, onDelete } =
     props.taskData;
+
+  const [tasks] = useState<Task>(props.taskData);
   const [checked, setChecked] = useState(isComplete);
   return (
     <div className="w-full border border-black p-2 my-2 rounded-md flex">
@@ -55,22 +70,25 @@ const TaskItem = (props: {
           id={_id}
           className="h-6 w-6"
           checked={checked}
-          onCheckedChange={() => setChecked(!checked)}
+          onCheckedChange={() => {
+            setChecked(!checked);
+            changeStatus(_id, !checked);
+          }}
         />
       </Label>
       <Label htmlFor={_id} className="w-3/6">
-        <h2 className="font-semibold">{title}&nbsp;
-          <Badge variant={`${priorities[priority].type}`}>{priorities[priority].value}</Badge>
-        </h2>
+        <h3 className="font-semibold">
+          {title}&nbsp;
+          <Badge variant={`${priorities[priority].type}`}>
+            {priorities[priority].value}
+          </Badge>
+        </h3>
         <h4 className="text-muted-foreground">{description}</h4>
       </Label>
       <div className="w-2/6 flex gap-2 justify-end items-center">
-        <Pencil1Icon
-          className="w-8 h-8 bg-black text-white rounded-full p-1.5 cursor-pointer"
-          onClick={() => {
-            console.log("testing");
-          }}
-        />
+        <Suspense fallback={<Loading />}>
+          <EditButton data={props.taskData} />
+        </Suspense>
         <TrashIcon
           className="w-8 h-8 bg-black text-white rounded-full p-1.5 cursor-pointer"
           onClick={() => props.onDelete(_id)}
@@ -78,6 +96,23 @@ const TaskItem = (props: {
       </div>
     </div>
   );
+};
+
+const changeStatus = async (id, completed) => {
+  const change = await fetch("http://localhost:5000/tasks/complete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+      completed,
+    }),
+  });
+
+  const res = await change.json();
+
+  console.log(res);
 };
 
 export default TaskItem;

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { toast } from "sonner"
-import { z } from "zod";
+import { set, z } from "zod";
 import { Button } from "../ui/button";
 import { Pencil2Icon } from "@radix-ui/react-icons";
 import {
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Sonner } from "./sonner";
+import TaskContext from "@/contexts/taskContext";
 
 const priorities: { [key: number]: string } = {
   1: "Low",
@@ -54,7 +55,7 @@ const formSchema = z.object({
 
 const CreateButton = () => {
   const [value, setValue] = useState(1);
-
+  const {tasks, setTasks} = useContext(TaskContext);
   const {reset} = useForm()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -80,7 +81,7 @@ const CreateButton = () => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data, event)=>{
-              submitData(data);
+              submitData(data, setTasks);
               form.reset();
           })}>
             <FormField
@@ -154,7 +155,7 @@ const CreateButton = () => {
   );
 };
 
-const submitData = async (values: z.infer<typeof formSchema>) => {
+const submitData = async (values: z.infer<typeof formSchema>, setTasks: React.Dispatch<React.SetStateAction<any>>) => {
   const { title, priority, description } = values;
   const data = await fetch("http://localhost:5000/tasks/create", {
     method: "POST",
@@ -171,6 +172,7 @@ const submitData = async (values: z.infer<typeof formSchema>) => {
   try {
     const result = await data.json();
     console.log(result);
+    setTasks((tasks: any) => [...tasks, result.data]);
     toast("Created task succesfully")
   } catch (err) {
     console.log(err);
