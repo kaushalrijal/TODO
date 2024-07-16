@@ -1,8 +1,9 @@
 "use client"
 
-import React, { createContext, SetStateAction, useContext, useState } from "react";
+import React, { useState } from "react";
+import { Toaster } from "@/components/ui/toaster"
 
-import { set, z } from "zod";
+import { z } from "zod";
 
 
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -19,10 +19,8 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 
-import TaskContext from "@/contexts/taskContext";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { userAgent } from "next/server";
+import { toast } from "@/components/ui/use-toast";
 
 const loginSchema = z.object({
     email: z.string().email({
@@ -45,22 +43,23 @@ const registerSchema = z.object({
     })
 });
 
-const pageContext = createContext<{setCurrentPage: (newState: string) => void}>({ setCurrentPage: (newState: string) => {} })
+// const pageContext = createContext<{setCurrentPage: (newState: string) => void}>({ setCurrentPage: (newState: string) => {} })
 
 const Auth = () => {
     const [currentPage, setCurrentPage] = useState('Login')
     return (
-        <pageContext.Provider value={{ setCurrentPage }}>
-            <div className="w-screen h-screen p-2 flex flex-col items-center justify-center">
-                <div className="flex flex-col gap-4 border-solid border-2 border-black p-8">
-                    <h1 className="font-bold underline">{currentPage}</h1>
-                    {currentPage == 'Login' ? login() : signup()}
-                    <a onClick={() => setCurrentPage(currentPage == 'Login' ? 'Signup' : 'Login')} className="text-sm cursor-pointer text-muted-foreground">
-                        {currentPage == 'Login' ? 'Signup' : 'Login'} instead..
-                    </a>
-                </div>
+        // <pageContext.Provider value={{ setCurrentPage }}>
+        <div className="w-screen h-screen p-2 flex flex-col items-center justify-center">
+            <div className="flex flex-col gap-4 border-solid border-2 border-black p-8">
+                <h1 className="font-bold underline">{currentPage}</h1>
+                {currentPage == 'Login' ? login() : signup(setCurrentPage)}
+                <a onClick={() => setCurrentPage(currentPage == 'Login' ? 'Signup' : 'Login')} className="text-sm cursor-pointer text-muted-foreground">
+                    {currentPage == 'Login' ? 'Signup' : 'Login'} instead..
+                </a>
             </div>
-        </pageContext.Provider>
+            <Toaster />
+        </div>
+        // </pageContext.Provider>
     )
 }
 
@@ -111,8 +110,8 @@ const login = () => {
     );
 };
 
-const signup = () => {
-    const { setCurrentPage } = useContext(pageContext);
+const signup = (setCurrentPage: (newState: string) => void) => {
+    // const { setCurrentPage } = useContext(pageContext);
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -185,6 +184,11 @@ const loginUser = async (values: z.infer<typeof loginSchema>) => {
     try {
         const result = await response.json();
         console.log(result);
+        toast({
+            title: result.success ? "Success" : "Error",
+            variant: result.success ? "default" : "destructive",
+            description: result.message
+        })
     } catch (err) {
         console.log(err);
     }
@@ -204,6 +208,11 @@ const registerUser = async (values: z.infer<typeof registerSchema>, setCurrentPa
         const result = await response.json();
         console.log(result);
         setCurrentPage('Login')
+        toast(
+            {
+                title: "Success", description: "Account created successfully"}
+        );
+
     } catch (err) {
         console.log(err);
     }
