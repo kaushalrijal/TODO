@@ -37,7 +37,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);  
 
   return (
-    <main className="w-screen min-h-screen p-2">
+    <main className="">
       <Header />
       <TaskContext.Provider value={{ tasks, setTasks }}>
       <Tasks />

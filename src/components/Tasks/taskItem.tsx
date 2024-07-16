@@ -61,7 +61,6 @@ const TaskItem = (props: {
   const { title, description, priority, isComplete, _id, onDelete } =
     props.taskData;
 
-  const [tasks] = useState<Task>(props.taskData);
   const [checked, setChecked] = useState(isComplete);
   return (
     <div className="w-full border border-black p-2 my-2 rounded-md flex">
@@ -98,7 +97,7 @@ const TaskItem = (props: {
   );
 };
 
-const changeStatus = async (id, completed) => {
+const changeStatus = async (id: String, completed: boolean) => {
   const change = await fetch("http://localhost:5000/tasks/complete", {
     method: "POST",
     headers: {

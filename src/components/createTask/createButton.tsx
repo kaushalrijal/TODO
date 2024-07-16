@@ -55,8 +55,7 @@ const formSchema = z.object({
 
 const CreateButton = () => {
   const [value, setValue] = useState(1);
-  const {tasks, setTasks} = useContext(TaskContext);
-  const {reset} = useForm()
+  const {setTasks} = useContext(TaskContext);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
