@@ -85,7 +85,7 @@ const login = () => {
                         <FormItem>
                             <FormLabel className="">email</FormLabel>
                             <FormControl>
-                                <Input placeholder="email@example.com" {...field} required />
+                                <Input type="email" placeholder="email@example.com" {...field} required />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -98,7 +98,7 @@ const login = () => {
                         <FormItem>
                             <FormLabel className="">password</FormLabel>
                             <FormControl>
-                                <Input placeholder="Password" {...field} required />
+                                <Input type="password" placeholder="Password" {...field} required />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -145,7 +145,7 @@ const signup = (setCurrentPage: (newState: string) => void) => {
                         <FormItem>
                             <FormLabel className="">email</FormLabel>
                             <FormControl>
-                                <Input placeholder="email@example.com" {...field} required />
+                                <Input type="email" placeholder="email@example.com" {...field} required />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -158,7 +158,7 @@ const signup = (setCurrentPage: (newState: string) => void) => {
                         <FormItem>
                             <FormLabel className="">Password</FormLabel>
                             <FormControl>
-                                <Input placeholder="Password" {...field} required />
+                                <Input type="password" placeholder="Password" {...field} required />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

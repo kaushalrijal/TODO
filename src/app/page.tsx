@@ -35,6 +35,7 @@ export default function Home() {
   }, [])
 
   const [tasks, setTasks] = useState<Task[]>([]);  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <main className="w-screen min-h-screen p-2">
