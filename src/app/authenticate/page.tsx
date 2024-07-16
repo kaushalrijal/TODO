@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useState } from "react";
+import React, { createContext, SetStateAction, useContext, useState } from "react";
 
 import { set, z } from "zod";
 
@@ -45,18 +45,22 @@ const registerSchema = z.object({
     })
 });
 
+const pageContext = createContext<{setCurrentPage: (newState: string) => void}>({ setCurrentPage: (newState: string) => {} })
+
 const Auth = () => {
     const [currentPage, setCurrentPage] = useState('Login')
     return (
-        <div className="w-screen h-screen p-2 flex flex-col items-center justify-center">
-            <div className="flex flex-col gap-4 border-solid border-2 border-black p-8">
-                <h1 className="font-bold underline">{currentPage}</h1>
-                {currentPage == 'Login' ? login() : signup()}
-                <a onClick={() => setCurrentPage(currentPage == 'Login' ? 'Signup' : 'Login')} className="text-sm cursor-pointer text-muted-foreground">
-                    {currentPage == 'Login' ? 'Signup' : 'Login'} instead..
-                </a>
+        <pageContext.Provider value={{ setCurrentPage }}>
+            <div className="w-screen h-screen p-2 flex flex-col items-center justify-center">
+                <div className="flex flex-col gap-4 border-solid border-2 border-black p-8">
+                    <h1 className="font-bold underline">{currentPage}</h1>
+                    {currentPage == 'Login' ? login() : signup()}
+                    <a onClick={() => setCurrentPage(currentPage == 'Login' ? 'Signup' : 'Login')} className="text-sm cursor-pointer text-muted-foreground">
+                        {currentPage == 'Login' ? 'Signup' : 'Login'} instead..
+                    </a>
+                </div>
             </div>
-        </div>
+        </pageContext.Provider>
     )
 }
 
@@ -108,6 +112,7 @@ const login = () => {
 };
 
 const signup = () => {
+    const { setCurrentPage } = useContext(pageContext);
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -118,7 +123,7 @@ const signup = () => {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit((data, event) => {
-                registerUser(data);
+                registerUser(data, setCurrentPage);
                 form.reset();
             })} className="space-y-4">
                 <FormField
@@ -167,18 +172,41 @@ const signup = () => {
 };
 
 const loginUser = async (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
+    const { email, password } = values;
+    const response = await fetch("http://localhost:5000/user/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password })
+    });
+
+    try {
+        const result = await response.json();
+        console.log(result);
+    } catch (err) {
+        console.log(err);
+    }
 };
 
-const registerUser = async (values: z.infer<typeof registerSchema>) => {
-    const {username, email, password} = values;
+const registerUser = async (values: z.infer<typeof registerSchema>, setCurrentPage: (newState: string) => void) => {
+    const { username, email, password } = values;
     const response = await fetch("http://localhost:5000/user/signup", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({username, email, password})
+        body: JSON.stringify({ username, email, password })
     });
+
+    try {
+        const result = await response.json();
+        console.log(result);
+        setCurrentPage('Login')
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 export default Auth;
