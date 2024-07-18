@@ -11,7 +11,7 @@ const Tasks = () => {
 
   useEffect(() => {
     const getTasks = async () => {
-      const response = await fetch("http://localhost:5000/tasks/get", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/get`, {
         credentials: "include"
       });
       if(!response.ok){
@@ -30,7 +30,7 @@ const Tasks = () => {
   }, []);
 
   const deleteItem = async (id: any) => {
-    const dlt = await fetch("http://localhost:5000/tasks/delete", {
+    const dlt = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/delete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

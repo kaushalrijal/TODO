@@ -21,7 +21,7 @@ const Header = () => {
 };
 
 const logout = async () => {
-  const reponse = await fetch("http://localhost:5000/user/logout", {
+  const reponse = await fetch(`${process.env.NEXT_PUBLIC_URL}/user/logout`, {
     credentials: "include",
   });
   const result = await reponse.json();

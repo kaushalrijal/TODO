@@ -156,7 +156,7 @@ const CreateButton = () => {
 
 const submitData = async (values: z.infer<typeof formSchema>, setTasks: React.Dispatch<React.SetStateAction<any>>) => {
   const { title, priority, description } = values;
-  const data = await fetch("http://localhost:5000/tasks/create", {
+  const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

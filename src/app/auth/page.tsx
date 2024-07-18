@@ -46,6 +46,7 @@ const registerSchema = z.object({
 });
 
 
+
 // const pageContext = createContext<{setCurrentPage: (newState: string) => void}>({ setCurrentPage: (newState: string) => {} })
 
 const Auth = () => {
@@ -177,7 +178,7 @@ const signup = (setCurrentPage: (newState: string) => void) => {
 
 const loginUser = async (values: z.infer<typeof loginSchema>, router: AppRouterInstance | string[]) => {
     const { email, password } = values;
-    const response = await fetch("http://localhost:5000/user/login", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/user/login`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -202,7 +203,7 @@ const loginUser = async (values: z.infer<typeof loginSchema>, router: AppRouterI
 
 const registerUser = async (values: z.infer<typeof registerSchema>, setCurrentPage: (newState: string) => void) => {
     const { username, email, password } = values;
-    const response = await fetch("http://localhost:5000/user/signup", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/user/signup`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

@@ -98,7 +98,7 @@ const TaskItem = (props: {
 };
 
 const changeStatus = async (id: String, completed: boolean) => {
-  const change = await fetch("http://localhost:5000/tasks/complete", {
+  const change = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/complete`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

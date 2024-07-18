@@ -170,7 +170,7 @@ const updateData = async (
   setTasks: React.Dispatch<React.SetStateAction<{ _id: string; }[]>>
 ) => {
   const { title, priority, description, id, isComplete } = values;
-  const data = await fetch("http://localhost:5000/tasks/update", {
+  const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/update`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
