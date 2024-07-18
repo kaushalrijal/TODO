@@ -10,13 +10,11 @@ const Tasks = () => {
 
   useEffect(() => {
     const getTasks = async () => {
-      const response = await fetch("http://localhost:5000/tasks/");
-      const labalaba = await fetch("http://localhost:5000/tasks/get", {
+      const response = await fetch("http://localhost:5000/tasks/get", {
         credentials: "include"
       });
       const result = await response.json();
       console.log(result);
-      console.log(await labalaba.json())
       setTasks(result);
     };
     try {
@@ -32,6 +30,7 @@ const Tasks = () => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ id }),
     });
 
