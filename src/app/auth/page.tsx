@@ -56,7 +56,7 @@ const Auth = () => {
         <div className="w-screen h-screen p-2 flex flex-col items-center justify-center">
             <div className="flex flex-col gap-4 border-solid border-2 border-black p-8">
                 <h1 className="font-bold underline">{currentPage}</h1>
-                {currentPage == 'Login' ? login() : signup(setCurrentPage)}
+                {currentPage == 'Login' ? Login() : Signup(setCurrentPage)}
                 <a onClick={() => setCurrentPage(currentPage == 'Login' ? 'Signup' : 'Login')} className="text-sm cursor-pointer text-muted-foreground">
                     {currentPage == 'Login' ? 'Signup' : 'Login'} instead..
                 </a>
@@ -68,7 +68,7 @@ const Auth = () => {
 }
 
 
-const login = () => {
+const Login = () => {
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -116,7 +116,7 @@ const login = () => {
     );
 };
 
-const signup = (setCurrentPage: (newState: string) => void) => {
+const Signup = (setCurrentPage: (newState: string) => void) => {
     // const { setCurrentPage } = useContext(pageContext);
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
