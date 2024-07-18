@@ -161,6 +161,7 @@ const submitData = async (values: z.infer<typeof formSchema>, setTasks: React.Di
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify({
       title,
       priority,

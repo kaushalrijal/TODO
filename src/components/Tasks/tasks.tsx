@@ -28,6 +28,7 @@ const Tasks = () => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ id }),
     });
 

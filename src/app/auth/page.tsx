@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Toaster } from "@/components/ui/toaster"
+import { useRouter } from "next/navigation";
 
 import { z } from "zod";
 
@@ -21,6 +22,7 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import Router from "next/router";
 
 const loginSchema = z.object({
     email: z.string().email({
@@ -42,6 +44,8 @@ const registerSchema = z.object({
         message: "Password must be at least 6 characters"
     })
 });
+
+const router = useRouter();
 
 // const pageContext = createContext<{setCurrentPage: (newState: string) => void}>({ setCurrentPage: (newState: string) => {} })
 
@@ -72,6 +76,7 @@ const login = () => {
             password: "",
         },
     });
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit((data, event) => {
@@ -189,6 +194,7 @@ const loginUser = async (values: z.infer<typeof loginSchema>) => {
             variant: result.success ? "default" : "destructive",
             description: result.message
         })
+        router.push('/dashboard')
     } catch (err) {
         console.log(err);
     }
@@ -212,7 +218,6 @@ const registerUser = async (values: z.infer<typeof registerSchema>, setCurrentPa
             {
                 title: "Success", description: "Account created successfully"}
         );
-
     } catch (err) {
         console.log(err);
     }

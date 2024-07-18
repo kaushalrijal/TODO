@@ -107,6 +107,7 @@ const changeStatus = async (id: String, completed: boolean) => {
       id,
       completed,
     }),
+    credentials: "include"
   });
 
   const res = await change.json();
