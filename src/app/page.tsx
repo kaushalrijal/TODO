@@ -18,11 +18,13 @@ interface Task {
 }
 
 export default function Home() {
+  const [tasks, setTasks] = useState<Task[]>([]);  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const data = async () =>{
       try{
-      const response = await fetch("http://localhost:5000/test/")
+      const response = await fetch("http://localhost:5000//")
       const result = await response.json();
       console.log(result)
       }
@@ -34,8 +36,6 @@ export default function Home() {
     data();
   }, [])
 
-  const [tasks, setTasks] = useState<Task[]>([]);  
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <main className="w-screen min-h-screen p-2">

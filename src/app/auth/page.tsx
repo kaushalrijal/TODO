@@ -22,7 +22,7 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import Router from "next/router";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const loginSchema = z.object({
     email: z.string().email({
@@ -45,7 +45,6 @@ const registerSchema = z.object({
     })
 });
 
-const router = useRouter();
 
 // const pageContext = createContext<{setCurrentPage: (newState: string) => void}>({ setCurrentPage: (newState: string) => {} })
 
@@ -76,11 +75,12 @@ const login = () => {
             password: "",
         },
     });
-
+    const router = useRouter();
+    
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit((data, event) => {
-                loginUser(data);
+                loginUser(data, router);
                 form.reset();
             })} className="space-y-4">
                 <FormField
@@ -175,7 +175,7 @@ const signup = (setCurrentPage: (newState: string) => void) => {
     );
 };
 
-const loginUser = async (values: z.infer<typeof loginSchema>) => {
+const loginUser = async (values: z.infer<typeof loginSchema>, router: AppRouterInstance | string[]) => {
     const { email, password } = values;
     const response = await fetch("http://localhost:5000/user/login", {
         method: "POST",
@@ -194,7 +194,7 @@ const loginUser = async (values: z.infer<typeof loginSchema>) => {
             variant: result.success ? "default" : "destructive",
             description: result.message
         })
-        router.push('/dashboard')
+        router.push('/')
     } catch (err) {
         console.log(err);
     }

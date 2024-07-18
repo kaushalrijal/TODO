@@ -6,13 +6,17 @@ import { Task } from "@/interface/Task";
 
 const Tasks = () => {
 
-  const {tasks, setTasks} = useContext(TaskContext);
-  
+  const { tasks, setTasks } = useContext(TaskContext);
+
   useEffect(() => {
     const getTasks = async () => {
       const response = await fetch("http://localhost:5000/tasks/");
+      const labalaba = await fetch("http://localhost:5000/tasks/get", {
+        credentials: "include"
+      });
       const result = await response.json();
       console.log(result);
+      console.log(await labalaba.json())
       setTasks(result);
     };
     try {
@@ -28,7 +32,6 @@ const Tasks = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({ id }),
     });
 
@@ -37,19 +40,20 @@ const Tasks = () => {
 
     setTasks((tasks: Task[]) => tasks.filter((todo) => todo._id !== id));
   };
-  
+
+
   return (
-    
-    <div className="p-4">
+    <div className="p-4">   
       <h2 className="font-semibold ">Your Tasks</h2>
       <div className="grid md:grid-cols-2 md:gap-x-4">
-        {tasks?.map((task: Task) => {
-          return (
-            <Suspense key={task._id} fallback={<Loading />}>
-              <TaskItem taskData={task} onDelete={deleteItem}/>
-            </Suspense>
-          );
-        })}
+        <Suspense fallback={<Loading />}>
+          {tasks?.map((task: Task) => {
+            return (
+              <TaskItem key={task._id} taskData={task} onDelete={deleteItem} />
+            );
+          })}
+        </Suspense>
+
       </div>
     </div>
   );
