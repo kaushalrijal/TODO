@@ -167,7 +167,7 @@ export function EditButton(props: { data: { title: any; description: any; priori
 
 const updateData = async (
   values: z.infer<typeof formSchema>,
-  setTasks: React.Dispatch<React.SetStateAction<{ _id: string; }[]>>
+  setTasks: React.Dispatch<React.SetStateAction<any>>
 ) => {
   const { title, priority, description, id, isComplete } = values;
   const data = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/update`, {
@@ -188,14 +188,14 @@ const updateData = async (
   try {
     const result = await data.json();
     console.log(result);
-    setTasks((tasks: { _id: string; }[]) => {
-        return tasks.map((task: { _id: string; }) => {
+    setTasks((prevTasks: { _id: string; }[]) => {
+        return prevTasks.map((task: { _id: string; }) => {
             if (task._id === id) {
-            return { ...task, title, priority, description, isComplete };
+                return { ...task, title, priority, description, isComplete };
             }
             return task;
-        });
-        });
+        }) as { _id: string; }[];
+    });
     
     // toast("Task updated succesfully");
   } catch (err) {
