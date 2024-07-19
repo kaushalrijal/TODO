@@ -21,22 +21,6 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const data = async () =>{
-      try{
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/`)
-      const result = await response.json();
-      console.log(result)
-      }
-      catch(err) {
-      console.log(err)
-    }
-    }
-
-    data();
-  }, [])
-
-
   return (
     <main className="w-screen min-h-screen p-2">
       <Header />

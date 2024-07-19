@@ -1,3 +1,5 @@
+"use client"
+
 import React, { Suspense, useContext, useEffect, useState } from "react";
 import TaskItem from "./taskItem";
 import Loading from "./loading";
@@ -7,27 +9,40 @@ import { useRouter } from "next/navigation";
 
 const Tasks = () => {
   const { tasks, setTasks } = useContext(TaskContext);
+  const [loading, setLoading] = useState(false)
   const router = useRouter();
 
   useEffect(() => {
+    let isMounted = true; 
+    setLoading(true);
+
     const getTasks = async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/get`, {
-        credentials: "include"
-      });
-      if(!response.ok){
-        router.push("/auth")
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/get`, {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          router.push("/auth");
+          return;
+        }
+        const result = await response.json();
+        if (isMounted) {
+          setTasks(result); 
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        if (isMounted) setLoading(false);
       }
-      const result = await response.json();
-      console.log(result);
-      setTasks(result);
     };
-    try {
-      getTasks();
-    } catch (err) {
-      console.log("Error aayo bhai")
-      console.log(err);
-    }
+
+    getTasks();
+
+    return () => {
+      isMounted = false; // Cleanup function to avoid state update on unmounted component
+    };
   }, []);
+  
 
   const deleteItem = async (id: any) => {
     const dlt = await fetch(`${process.env.NEXT_PUBLIC_URL}/tasks/delete`, {
@@ -51,16 +66,17 @@ const Tasks = () => {
       <h2 className="font-semibold ">Your Tasks</h2>
       <div className="grid md:grid-cols-2 md:gap-x-4">
         <Suspense fallback={<Loading />}>
-          {tasks && tasks?.map((task: Task) => {
+          {loading ? "Loading..." : tasks?.map((task: Task) => {
             return (
               <TaskItem key={task._id} taskData={task} onDelete={deleteItem} />
             );
           })}
         </Suspense>
-        {tasks?.length===0 ? "Nothing to see here... Perhaps create a task" : ""}
+        {!loading && tasks?.length===0 ? "Nothing to see here... Perhaps create a task" : ""}
       </div>
     </div>
   );
 };
+
 
 export default Tasks;
